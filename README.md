@@ -27,37 +27,53 @@ CleanRAG is a Windows-first local desktop app for simple RAG with small Ollama m
 - Chat: `qwen2.5:3b`
 - Embeddings: `nomic-embed-text:latest`
 
-## Non-technical install path
+## Simple local install path
 
-### 1. Install prerequisites
+For non-technical users, the preferred setup is now:
 
-Install these once:
+1. Install `Docker Desktop` for Windows.
+2. Install `Ollama` for Windows.
+3. Run the setup helper:
 
-1. Install `Python 3.11+` and ensure `python` is available in Command Prompt or PowerShell.
-2. Install `Node.js 20+`.
-3. Install `Ollama` from `https://ollama.com/download/windows`.
-4. Optional but recommended for OCR: install `Tesseract OCR` and add it to your `PATH`.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-local.ps1
+```
 
-### 2. Start CleanRAG in development
+This helper:
+
+- verifies or installs Docker Desktop
+- verifies or installs Ollama
+- starts Docker Desktop and waits for it
+- waits for Ollama to respond locally
+- builds and starts the CleanRAG backend container
+
+After that, open the desktop app and use the `Models` screen to install the recommended local models.
+
+## Developer install path
+
+If you want to run the renderer in development, use:
 
 ```powershell
 npm install
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
 npm run dev
 ```
 
-The desktop app will open and check:
+The desktop app will prefer the Docker-backed backend automatically. If Docker is unavailable, it falls back to a local Python backend.
+
+The app checks:
 
 - local data folder
 - Ollama availability
 - recommended chat model
 - recommended embedding model
 
-Use the `Models` screen to install missing models.
+If you explicitly want to run only the backend container:
 
-### 3. Package a Windows installer
+```powershell
+npm run backend:container
+```
+
+## Package a Windows installer
 
 ```powershell
 npm run package
@@ -108,4 +124,7 @@ When a user uploads an updated `CSV` or `XLSX` into an existing source:
 
 - The app is local-first and single-user in v1.
 - The current implementation targets Windows first.
+- The preferred local service runtime is a Docker container for the backend.
 - Ollama models are installed through the app UI, not bundled into the installer.
+- Docker Desktop system requirements are documented by Docker, including supported Windows editions and WSL 2 requirements: https://docs.docker.com/desktop/setup/install/windows-install/
+- Ollama Windows downloads are available at: https://ollama.com/download/windows

@@ -10,6 +10,13 @@ export type SetupStatus = {
   issues: string[];
 };
 
+export type RuntimeConfig = {
+  apiBaseUrl: string;
+  hasPython: boolean;
+  hasDocker: boolean;
+  backendMode: "docker" | "python" | "unavailable";
+};
+
 export type ProjectRecord = {
   id: string;
   name: string;

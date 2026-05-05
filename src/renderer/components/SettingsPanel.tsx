@@ -1,8 +1,10 @@
+import type { RuntimeConfig } from "../../shared";
+
 type SettingsPanelProps = {
-  hasPython: boolean;
+  runtimeConfig: RuntimeConfig;
 };
 
-export function SettingsPanel({ hasPython }: SettingsPanelProps): JSX.Element {
+export function SettingsPanel({ runtimeConfig }: SettingsPanelProps): JSX.Element {
   return (
     <section className="panel">
       <div className="panel__header">
@@ -14,15 +16,16 @@ export function SettingsPanel({ hasPython }: SettingsPanelProps): JSX.Element {
       <div className="stack">
         <div className="card">
           <h3>Desktop runtime</h3>
-          <p>Python detected: {hasPython ? "Yes" : "No"}</p>
+          <p>Backend mode: {runtimeConfig.backendMode}</p>
+          <p>Docker detected: {runtimeConfig.hasDocker ? "Yes" : "No"}</p>
+          <p>Python detected: {runtimeConfig.hasPython ? "Yes" : "No"}</p>
           <p>CleanRAG runs fully local after Ollama and the recommended models are ready.</p>
         </div>
         <div className="card">
-          <h3>Need Ollama?</h3>
-          <p>Use the setup screen to confirm installation, or open the official installer from the README instructions.</p>
+          <h3>Containerized backend</h3>
+          <p>The preferred local setup uses Docker Desktop for the backend container so users do not have to install Python or OCR dependencies manually.</p>
         </div>
       </div>
     </section>
   );
 }
-

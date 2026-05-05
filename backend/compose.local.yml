@@ -1,0 +1,18 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      CLEANRAG_DATA_DIR: /app/data
+      CLEANRAG_PORT: 8777
+      OLLAMA_HOST: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${CLEANRAG_PORT:-8777}:8777"
+    volumes:
+      - type: bind
+        source: ${CLEANRAG_DATA_DIR}
+        target: /app/data
+

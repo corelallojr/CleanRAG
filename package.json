@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Windows-first local desktop RAG app for non-technical users.",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "author": "corelallojr",
   "license": "MIT",
   "scripts": {
@@ -14,6 +14,8 @@
     "build": "npm run build:renderer && npm run build:electron",
     "build:renderer": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
+    "backend:container": "docker compose -f backend/compose.local.yml up -d --build",
+    "backend:container:stop": "docker compose -f backend/compose.local.yml stop backend",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "package": "npm run build && electron-builder",
     "lint": "eslint . --ext .ts,.tsx"
@@ -21,17 +23,23 @@
   "build": {
     "appId": "com.cleanrag.desktop",
     "productName": "CleanRAG",
+    "asarUnpack": [
+      "backend/**/*",
+      "scripts/**/*"
+    ],
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
       "backend/**/*",
+      "scripts/**/*",
       "package.json"
     ],
     "directories": {
       "buildResources": "build"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "signAndEditExecutable": false
     }
   },
   "dependencies": {

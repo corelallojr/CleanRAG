@@ -9,6 +9,7 @@ import { ChatsPanel } from "./components/ChatsPanel";
 import { SourcesPanel } from "./components/SourcesPanel";
 import { ModelsPanel } from "./components/ModelsPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { RuntimeBootstrapPanel } from "./components/RuntimeBootstrapPanel";
 import type { ProjectRecord } from "../shared";
 
 export function App(): JSX.Element {
@@ -156,9 +157,20 @@ export function App(): JSX.Element {
       {setupQuery.data ? (
         <SetupChecklist
           setupStatus={setupQuery.data}
-          hasPython={runtimeConfig.hasPython}
+          runtimeConfig={runtimeConfig}
           onRetry={() => {
             void queryClient.invalidateQueries({ queryKey: ["setup-status"] });
+          }}
+          onRunSetupHelper={async () => {
+            await window.cleanragDesktop.runSetupHelper();
+          }}
+        />
+      ) : null}
+      {setupQuery.isError ? (
+        <RuntimeBootstrapPanel
+          runtimeConfig={runtimeConfig}
+          onRunSetupHelper={async () => {
+            await window.cleanragDesktop.runSetupHelper();
           }}
         />
       ) : null}
@@ -228,7 +240,7 @@ export function App(): JSX.Element {
           }}
         />
       ) : null}
-      {activeView === "settings" ? <SettingsPanel hasPython={runtimeConfig.hasPython} /> : null}
+      {activeView === "settings" ? <SettingsPanel runtimeConfig={runtimeConfig} /> : null}
     </Shell>
   );
 }

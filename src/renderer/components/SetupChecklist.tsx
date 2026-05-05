@@ -1,12 +1,18 @@
-import type { SetupStatus } from "../../shared";
+import type { RuntimeConfig, SetupStatus } from "../../shared";
 
 type SetupChecklistProps = {
   setupStatus: SetupStatus;
-  hasPython: boolean;
+  runtimeConfig: RuntimeConfig;
   onRetry: () => void;
+  onRunSetupHelper: () => Promise<void>;
 };
 
-export function SetupChecklist({ setupStatus, hasPython, onRetry }: SetupChecklistProps): JSX.Element {
+export function SetupChecklist({
+  setupStatus,
+  runtimeConfig,
+  onRetry,
+  onRunSetupHelper
+}: SetupChecklistProps): JSX.Element {
   const steps = [
     { label: "Local data folder ready", ok: setupStatus.appDataReady },
     { label: "Ollama installed", ok: setupStatus.ollamaInstalled },
@@ -22,13 +28,21 @@ export function SetupChecklist({ setupStatus, hasPython, onRetry }: SetupCheckli
           <p className="eyebrow">First-run setup</p>
           <h2>Make this machine ready</h2>
         </div>
-        <button className="button button--ghost" onClick={onRetry} type="button">
-          Retry checks
-        </button>
+        <div className="row">
+          <button className="button button--ghost" onClick={onRetry} type="button">
+            Retry checks
+          </button>
+          <button className="button" onClick={() => void onRunSetupHelper()} type="button">
+            Setup helper
+          </button>
+        </div>
       </div>
-      {!hasPython ? (
+      {runtimeConfig.backendMode === "docker" ? (
+        <div className="notice notice--ok">Backend runtime: Docker container</div>
+      ) : null}
+      {!runtimeConfig.hasPython && !runtimeConfig.hasDocker ? (
         <div className="notice notice--warning">
-          Python is not installed on this machine yet, so the bundled FastAPI backend cannot start until Python is added.
+          Neither Docker nor Python is available yet. Use the setup helper to install the local runtime CleanRAG needs.
         </div>
       ) : null}
       <div className="checklist">
@@ -51,4 +65,3 @@ export function SetupChecklist({ setupStatus, hasPython, onRetry }: SetupCheckli
     </section>
   );
 }
-

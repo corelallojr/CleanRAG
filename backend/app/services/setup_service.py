@@ -13,7 +13,6 @@ from app.services.ollama_service import list_installed_model_tags
 def get_setup_status() -> SetupStatus:
     issues: list[str] = []
     app_data_ready = all(Path(directory).exists() for directory in [settings.data_dir, settings.uploads_dir, settings.lancedb_dir])
-    ollama_installed = shutil.which("ollama") is not None
     ollama_reachable = False
 
     try:
@@ -21,6 +20,8 @@ def get_setup_status() -> SetupStatus:
         ollama_reachable = response.status_code == 200
     except httpx.HTTPError:
         ollama_reachable = False
+
+    ollama_installed = shutil.which("ollama") is not None or ollama_reachable
 
     installed_tags = list_installed_model_tags() if ollama_reachable else []
     chat_model_ready = settings.recommended_chat_model in installed_tags
@@ -46,4 +47,3 @@ def get_setup_status() -> SetupStatus:
         recommendedEmbeddingModel=settings.recommended_embedding_model,
         issues=issues
     )
-
