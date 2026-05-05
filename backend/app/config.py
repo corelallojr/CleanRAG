@@ -12,9 +12,8 @@ class Settings:
     lancedb_dir = data_dir / "lancedb"
     sqlite_path = data_dir / "cleanrag.db"
     ollama_base_url = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
-    recommended_chat_model = "qwen2.5:3b"
+    recommended_chat_model = "llama3.2:3b"
     recommended_embedding_model = "nomic-embed-text:latest"
 
 
 settings = Settings()
-

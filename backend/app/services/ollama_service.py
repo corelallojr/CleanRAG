@@ -10,10 +10,10 @@ from app.models.schemas import ModelRecord
 
 RECOMMENDED_MODELS = [
     ModelRecord(
-        name="Qwen 2.5 3B",
+        name="Llama 3.2 3B",
         tag=settings.recommended_chat_model,
         installed=False,
-        size="1.9 GB",
+        size="2.0 GB",
         kind="chat",
         recommended=True,
         status="missing"
@@ -81,4 +81,3 @@ def generate_chat(model: str, prompt: str) -> str:
     )
     response.raise_for_status()
     return response.json()["response"]
-

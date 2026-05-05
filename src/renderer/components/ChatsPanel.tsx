@@ -25,7 +25,7 @@ export function ChatsPanel({
   onSendMessage
 }: ChatsPanelProps): JSX.Element {
   const [draft, setDraft] = useState("");
-  const [model, setModel] = useState(models[0] ?? "qwen2.5:3b");
+  const [model, setModel] = useState(models[0] ?? "llama3.2:3b");
   const [useRetrieval, setUseRetrieval] = useState(true);
   const [sourceId, setSourceId] = useState<string>("__all__");
 
@@ -132,4 +132,3 @@ export function ChatsPanel({
     </div>
   );
 }
-

@@ -24,7 +24,7 @@ CleanRAG is a Windows-first local desktop app for simple RAG with small Ollama m
 
 ## Recommended local models
 
-- Chat: `qwen2.5:3b`
+- Chat: `llama3.2:3b`
 - Embeddings: `nomic-embed-text:latest`
 
 ## Simple local install path
