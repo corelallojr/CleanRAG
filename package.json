@@ -16,8 +16,6 @@
     "build:electron": "tsc -p tsconfig.electron.json",
     "backend:local:setup": "powershell -ExecutionPolicy Bypass -File .\\scripts\\install-local.ps1",
     "backend:local": "powershell -ExecutionPolicy Bypass -File .\\scripts\\start-backend-local.ps1",
-    "backend:container": "docker compose -f backend/compose.local.yml up -d --build",
-    "backend:container:stop": "docker compose -f backend/compose.local.yml stop backend",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "package": "npm run build && electron-builder",
     "lint": "eslint . --ext .ts,.tsx"

@@ -40,12 +40,9 @@ export function SetupChecklist({
       {runtimeConfig.backendMode === "python" ? (
         <div className="notice notice--ok">Backend runtime: Local Python environment</div>
       ) : null}
-      {runtimeConfig.backendMode === "docker" ? (
-        <div className="notice notice--ok">Backend runtime: Docker container fallback</div>
-      ) : null}
-      {!runtimeConfig.hasPython && !runtimeConfig.hasDocker ? (
+      {!runtimeConfig.hasPython ? (
         <div className="notice notice--warning">
-          Neither Docker nor Python is available yet. Use the setup helper to install the local runtime CleanRAG needs.
+          Python is not available yet. Use the setup helper to install the local runtime CleanRAG needs.
         </div>
       ) : null}
       <div className="checklist">

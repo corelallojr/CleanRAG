@@ -6,7 +6,7 @@ import isDev from "electron-is-dev";
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcessWithoutNullStreams | null = null;
-let backendMode: "docker" | "python" | "unavailable" = "unavailable";
+let backendMode: "python" | "unavailable" = "unavailable";
 const backendPort = 8777;
 
 function getContentRoot(): string {
@@ -19,10 +19,6 @@ function getBackendEntry(): string {
 
 function getBundledVenvPythonPath(): string {
   return path.join(getBackendEntry(), ".venv", "Scripts", "python.exe");
-}
-
-function getComposeFilePath(): string {
-  return path.join(getContentRoot(), "backend", "compose.local.yml");
 }
 
 function getBootstrapScriptPath(): string {
@@ -70,16 +66,6 @@ function resolvePythonCommand(): string | null {
     if (commandExists(candidate)) {
       return candidate;
     }
-  }
-  return null;
-}
-
-function resolveDockerComposeCommand(): string[] | null {
-  if (commandExists("docker", ["compose", "version"])) {
-    return ["docker", "compose"];
-  }
-  if (commandExists("docker-compose", ["version"])) {
-    return ["docker-compose"];
   }
   return null;
 }
@@ -137,49 +123,10 @@ function startPythonBackend(): boolean {
   return true;
 }
 
-function startDockerBackend(): boolean {
-  const composeCommand = resolveDockerComposeCommand();
-  if (!composeCommand) {
-    return false;
-  }
-
-  const dataDir = path.join(app.getPath("userData"), "data");
-  const composeFile = getComposeFilePath();
-  const env = {
-    ...process.env,
-    CLEANRAG_DATA_DIR: dataDir,
-    CLEANRAG_PORT: String(backendPort)
-  };
-
-  const result = spawnSync(
-    composeCommand[0],
-    [...composeCommand.slice(1), "-f", composeFile, "up", "-d", "--build", "backend"],
-    {
-      cwd: getContentRoot(),
-      env,
-      stdio: "pipe"
-    }
-  );
-
-  if (result.status !== 0) {
-    const errorOutput = Buffer.concat([result.stdout ?? Buffer.alloc(0), result.stderr ?? Buffer.alloc(0)]).toString("utf8");
-    process.stderr.write(`[backend-docker] ${errorOutput}`);
-    return false;
-  }
-
-  backendMode = "docker";
-  return true;
-}
-
 async function startBackend(): Promise<void> {
   ensureAppDirectories();
 
   if (startPythonBackend()) {
-    await waitForBackend();
-    return;
-  }
-
-  if (startDockerBackend()) {
     await waitForBackend();
     return;
   }
@@ -218,7 +165,6 @@ app.on("before-quit", () => {
 ipcMain.handle("cleanrag:get-runtime-config", async () => ({
   apiBaseUrl: `http://127.0.0.1:${backendPort}`,
   hasPython: resolvePythonCommand() !== null,
-  hasDocker: resolveDockerComposeCommand() !== null,
   backendMode
 }));
 

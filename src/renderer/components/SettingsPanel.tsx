@@ -17,13 +17,12 @@ export function SettingsPanel({ runtimeConfig }: SettingsPanelProps): JSX.Elemen
         <div className="card">
           <h3>Desktop runtime</h3>
           <p>Backend mode: {runtimeConfig.backendMode}</p>
-          <p>Docker detected: {runtimeConfig.hasDocker ? "Yes" : "No"}</p>
           <p>Python detected: {runtimeConfig.hasPython ? "Yes" : "No"}</p>
           <p>CleanRAG runs fully local after Ollama and the recommended models are ready.</p>
         </div>
         <div className="card">
-          <h3>Containerized backend</h3>
-          <p>The preferred local setup uses Docker Desktop for the backend container so users do not have to install Python or OCR dependencies manually.</p>
+          <h3>Local backend</h3>
+          <p>CleanRAG uses a local Python virtual environment under <code>backend\.venv</code> and starts the API directly on your machine.</p>
         </div>
       </div>
     </section>

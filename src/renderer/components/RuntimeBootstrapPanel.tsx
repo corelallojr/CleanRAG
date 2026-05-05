@@ -23,21 +23,17 @@ export function RuntimeBootstrapPanel({
       <div className="notice notice--warning">
         <p>CleanRAG could not reach its local backend yet.</p>
         <p>
-          Preferred runtime: local Python. Fallback runtime: Docker container. Current mode: <strong>{runtimeConfig.backendMode}</strong>.
+          Required runtime: local Python. Current mode: <strong>{runtimeConfig.backendMode}</strong>.
         </p>
       </div>
       <div className="checklist">
-        <div className="checklist__item">
-          <div className={`status-dot ${runtimeConfig.hasDocker ? "status-dot--ok" : "status-dot--warn"}`} />
-          <span>Docker available</span>
-        </div>
         <div className="checklist__item">
           <div className={`status-dot ${runtimeConfig.hasPython ? "status-dot--ok" : "status-dot--warn"}`} />
           <span>Python available</span>
         </div>
       </div>
       <div className="notice">
-        <p>The setup helper installs or verifies Python and Ollama, prepares the backend virtual environment, and keeps Docker only as a fallback.</p>
+        <p>The setup helper installs or verifies Python and Ollama, then prepares the backend virtual environment for local startup.</p>
       </div>
     </section>
   );

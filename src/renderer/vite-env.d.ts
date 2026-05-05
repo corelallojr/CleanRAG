@@ -6,8 +6,7 @@ declare global {
       getRuntimeConfig: () => Promise<{
         apiBaseUrl: string;
         hasPython: boolean;
-        hasDocker: boolean;
-        backendMode: "docker" | "python" | "unavailable";
+        backendMode: "python" | "unavailable";
       }>;
       pickFiles: () => Promise<string[]>;
       openExternal: (target: string) => Promise<void>;

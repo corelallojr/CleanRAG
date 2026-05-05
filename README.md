@@ -7,7 +7,7 @@ CleanRAG is a Windows-first local desktop app for simple local RAG with Ollama m
 - Drag-and-drop document ingestion
 - Local chat history and project storage
 - Local vector search over your files
-- A local Python backend with script-based setup so Docker is optional
+- A local Python backend with script-based setup
 
 This README is written for someone starting from zero on Windows.
 
@@ -38,7 +38,7 @@ You need these installed on your Windows machine:
 3. `Python 3.11+`
 4. `Ollama`
 
-You do not need Docker for the normal local setup path.
+You do not need Docker.
 
 Official downloads:
 
@@ -198,12 +198,6 @@ If you already ran the setup script and only want the local Python backend:
 npm run backend:local
 ```
 
-If you still want the old Docker-backed backend:
-
-```powershell
-npm run backend:container
-```
-
 ## If You Want To Run The Desktop App Again Later
 
 After the initial setup, your normal startup is usually:
@@ -346,7 +340,7 @@ npm install
 npm run dev
 ```
 
-The desktop app prefers the local Python backend automatically. If that is unavailable, it can still fall back to Docker when present.
+The desktop app starts the local Python backend automatically when the backend virtual environment is present.
 
 ## Current App Areas
 
@@ -383,7 +377,7 @@ The desktop app prefers the local Python backend automatically. If that is unava
 - local-first
 - single-user
 - Ollama for local models
-- Python-backed backend by default
+- Python-backed backend
 
 ## Helpful Links
 
