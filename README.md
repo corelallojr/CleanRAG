@@ -7,7 +7,7 @@ CleanRAG is a Windows-first local desktop app for simple local RAG with Ollama m
 - Drag-and-drop document ingestion
 - Local chat history and project storage
 - Local vector search over your files
-- A Docker-based backend so you do not have to install Python dependencies manually
+- A local Python backend with script-based setup so Docker is optional
 
 This README is written for someone starting from zero on Windows.
 
@@ -35,16 +35,16 @@ You need these installed on your Windows machine:
 
 1. `Git`
 2. `Node.js 20+`
-3. `Docker Desktop`
+3. `Python 3.11+`
 4. `Ollama`
 
-You do not need to install Python for the normal local setup path.
+You do not need Docker for the normal local setup path.
 
 Official downloads:
 
 - Git: [Download Git for Windows](https://git-scm.com/download/win)
 - Node.js: [Download Node.js](https://nodejs.org/)
-- Docker Desktop: [Install Docker Desktop on Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+- Python: [Download Python for Windows](https://www.python.org/downloads/windows/)
 - Ollama: [Download Ollama for Windows](https://ollama.com/download/windows)
 
 ## Fastest Path To Start
@@ -68,7 +68,7 @@ cd CleanRAG
 npm install
 ```
 
-### 3. Install and start the local backend environment
+### 3. Install and prepare the local backend environment
 
 This script is the main setup shortcut. It is meant to reduce the number of manual steps.
 
@@ -78,24 +78,31 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install-local.ps1
 
 What this script does:
 
-- checks whether Docker Desktop is available
+- checks whether Python is available
 - checks whether Ollama is available
 - tries to install missing tools with `winget`
-- starts Docker Desktop
-- waits for Docker to become ready
 - starts Ollama
 - waits for Ollama to become ready
-- builds the CleanRAG backend container
-- starts the backend on `http://127.0.0.1:8777`
+- creates `backend\.venv`
+- installs the backend Python dependencies
+- prepares the local app data folder
 
 Important notes:
 
 - If `winget` prompts you for agreement approval, accept it.
-- Docker Desktop may require WSL 2 to be enabled on your machine. If Docker does not install cleanly, use the official guide here: [Install Docker Desktop on Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
-- Docker Desktop may ask you to sign in or finish first-run setup.
 - Ollama may open its own app window or tray icon on first launch. If you need to install it manually, use: [Download Ollama for Windows](https://ollama.com/download/windows)
 
-### 4. Start the desktop app
+### 4. Optional: start the backend by itself
+
+If you want the API running outside Electron, use:
+
+```powershell
+npm run backend:local
+```
+
+This starts the FastAPI backend on `http://127.0.0.1:8777`.
+
+### 5. Start the desktop app
 
 ```powershell
 npm run dev
@@ -103,7 +110,7 @@ npm run dev
 
 This opens the Electron desktop app.
 
-### 5. Install the default models inside the app
+### 6. Install the default models inside the app
 
 When the app opens:
 
@@ -116,7 +123,7 @@ These are the default recommended models:
 - Chat model: `llama3.2:3b`
 - Embedding model: `nomic-embed-text:latest`
 
-### 6. Create your first project and test chat
+### 7. Create your first project and test chat
 
 Inside the app:
 
@@ -185,31 +192,30 @@ Expected result:
 
 ## If You Want To Start The Backend Only
 
-If you already have Docker Desktop and Ollama running, and only want the backend container:
+If you already ran the setup script and only want the local Python backend:
+
+```powershell
+npm run backend:local
+```
+
+If you still want the old Docker-backed backend:
 
 ```powershell
 npm run backend:container
-```
-
-To stop the backend container:
-
-```powershell
-npm run backend:container:stop
 ```
 
 ## If You Want To Run The Desktop App Again Later
 
 After the initial setup, your normal startup is usually:
 
-1. Start Docker Desktop
-2. Start Ollama if it is not already running
-3. In the repo folder, run:
+1. Start Ollama if it is not already running
+2. In the repo folder, run:
 
 ```powershell
 npm run dev
 ```
 
-If the backend container is not already running, the app will try to start it automatically.
+If the backend virtual environment already exists, the app will try to start the Python backend automatically.
 
 ## Build A Windows Installer
 
@@ -274,14 +280,13 @@ When you upload an updated `CSV` or `XLSX` into an existing source:
 Check these first:
 
 - `winget` works on your machine
-- Docker Desktop is installed and opens successfully
+- Python is installed and available on your machine
 - Ollama is installed and opens successfully
-- you are on a supported Windows version for Docker Desktop
 
-If needed, install Docker Desktop and Ollama manually first, then run:
+If needed, install Python and Ollama manually first, then run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install-local.ps1 -SkipDockerInstall -SkipOllamaInstall
+powershell -ExecutionPolicy Bypass -File .\scripts\install-local.ps1 -SkipPythonInstall -SkipOllamaInstall
 ```
 
 ### The app opens but the backend is unavailable
@@ -294,9 +299,8 @@ Invoke-WebRequest http://127.0.0.1:8777/health
 
 If that fails:
 
-1. make sure Docker Desktop is running
-2. make sure Ollama is running
-3. rerun:
+1. make sure Ollama is running
+2. rerun:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install-local.ps1
@@ -319,18 +323,18 @@ Open the `Models` screen and install:
 - `llama3.2:3b`
 - `nomic-embed-text:latest`
 
-### Docker build fails
+### Python backend start fails
 
 Common causes:
 
-- Docker Desktop is not fully started yet
-- WSL 2 is not enabled
-- corporate proxy/network restrictions
+- Python was installed after the terminal was opened
+- backend dependencies did not finish installing
+- corporate proxy/network restrictions blocked `pip`
 - insufficient disk space
 
 Helpful install pages:
 
-- Docker Desktop Windows install guide: [https://docs.docker.com/desktop/setup/install/windows-install/](https://docs.docker.com/desktop/setup/install/windows-install/)
+- Python for Windows: [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/)
 - Ollama Windows download: [https://ollama.com/download/windows](https://ollama.com/download/windows)
 
 ## Developer Notes
@@ -342,7 +346,7 @@ npm install
 npm run dev
 ```
 
-The desktop app prefers the Docker-backed backend automatically. If Docker is unavailable, it can fall back to a local Python backend, but the normal intended path is Docker first.
+The desktop app prefers the local Python backend automatically. If that is unavailable, it can still fall back to Docker when present.
 
 ## Current App Areas
 
@@ -379,9 +383,9 @@ The desktop app prefers the Docker-backed backend automatically. If Docker is un
 - local-first
 - single-user
 - Ollama for local models
-- Docker-backed backend by default
+- Python-backed backend by default
 
 ## Helpful Links
 
-- Docker Desktop for Windows: [https://docs.docker.com/desktop/setup/install/windows-install/](https://docs.docker.com/desktop/setup/install/windows-install/)
+- Python for Windows: [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/)
 - Ollama for Windows: [https://ollama.com/download/windows](https://ollama.com/download/windows)

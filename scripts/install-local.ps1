@@ -1,5 +1,5 @@
 param(
-  [switch]$SkipDockerInstall,
+  [switch]$SkipPythonInstall,
   [switch]$SkipOllamaInstall
 )
 
@@ -28,16 +28,39 @@ function Ensure-WingetInstall([string]$PackageId, [string]$DisplayName) {
   winget install --id $PackageId --exact --accept-package-agreements --accept-source-agreements
 }
 
-function Ensure-Docker {
-  if (Test-Command "docker" @("compose", "version")) {
-    return
+function Resolve-PythonCommand() {
+  $repoRoot = Split-Path -Parent $PSScriptRoot
+  $venvPython = Join-Path $repoRoot "backend\.venv\Scripts\python.exe"
+  if (Test-Path $venvPython) {
+    return $venvPython
   }
 
-  if ($SkipDockerInstall) {
-    throw "Docker Desktop is not installed."
+  foreach ($candidate in @("python", "py")) {
+    if (Test-Command $candidate) {
+      return $candidate
+    }
   }
 
-  Ensure-WingetInstall "Docker.DockerDesktop" "Docker Desktop"
+  return $null
+}
+
+function Ensure-Python {
+  $pythonCommand = Resolve-PythonCommand
+  if ($pythonCommand) {
+    return $pythonCommand
+  }
+
+  if ($SkipPythonInstall) {
+    throw "Python is not installed."
+  }
+
+  Ensure-WingetInstall "Python.Python.3.11" "Python 3.11"
+  $pythonCommand = Resolve-PythonCommand
+  if (-not $pythonCommand) {
+    throw "Python installation finished, but Python is still not on PATH."
+  }
+
+  return $pythonCommand
 }
 
 function Ensure-Ollama {
@@ -50,25 +73,6 @@ function Ensure-Ollama {
   }
 
   Ensure-WingetInstall "Ollama.Ollama" "Ollama"
-}
-
-function Wait-ForDocker {
-  Write-Step "Starting Docker Desktop"
-  $dockerDesktop = Join-Path $env:ProgramFiles "Docker\Docker\Docker Desktop.exe"
-  if (Test-Path $dockerDesktop) {
-    Start-Process -FilePath $dockerDesktop | Out-Null
-  }
-
-  $attempts = 0
-  while ($attempts -lt 90) {
-    if (Test-Command "docker" @("info")) {
-      return
-    }
-    Start-Sleep -Seconds 2
-    $attempts += 1
-  }
-
-  throw "Docker Desktop did not become ready in time."
 }
 
 function Wait-ForOllama {
@@ -95,22 +99,48 @@ function Wait-ForOllama {
   throw "Ollama did not become ready in time."
 }
 
-function Start-BackendContainer {
-  Write-Step "Building and starting the CleanRAG backend container"
+function Ensure-BackendVenv([string]$PythonCommand) {
   $repoRoot = Split-Path -Parent $PSScriptRoot
-  $dataDir = Join-Path $env:APPDATA "CleanRAG\data"
-  New-Item -ItemType Directory -Force -Path $dataDir | Out-Null
-  $env:CLEANRAG_DATA_DIR = $dataDir
-  $env:CLEANRAG_PORT = "8777"
-  docker compose -f (Join-Path $repoRoot "backend\compose.local.yml") up -d --build backend
+  $backendRoot = Join-Path $repoRoot "backend"
+  $venvDir = Join-Path $backendRoot ".venv"
+  $venvPython = Join-Path $venvDir "Scripts\python.exe"
+
+  if (-not (Test-Path $venvPython)) {
+    Write-Step "Creating backend virtual environment"
+    & $PythonCommand -m venv $venvDir
+    if ($LASTEXITCODE -ne 0) {
+      throw "Failed to create the backend virtual environment."
+    }
+  }
+
+  Write-Step "Installing backend Python dependencies"
+  & $venvPython -m pip install --upgrade pip
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to upgrade pip in the backend virtual environment."
+  }
+
+  & $venvPython -m pip install -r (Join-Path $backendRoot "requirements.txt")
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to install backend requirements."
+  }
+
+  return $venvPython
 }
 
-Ensure-Docker
+function Ensure-DataDirectory {
+  $dataDir = Join-Path $env:APPDATA "CleanRAG\data"
+  New-Item -ItemType Directory -Force -Path $dataDir | Out-Null
+  return $dataDir
+}
+
+$pythonCommand = Ensure-Python
 Ensure-Ollama
-Wait-ForDocker
 Wait-ForOllama
-Start-BackendContainer
+$venvPython = Ensure-BackendVenv -PythonCommand $pythonCommand
+$dataDir = Ensure-DataDirectory
 
-Write-Step "CleanRAG local container environment is ready"
-Write-Host "Docker Desktop is running, Ollama is reachable, and the backend container is up on http://127.0.0.1:8777." -ForegroundColor Green
-
+Write-Step "CleanRAG local Python environment is ready"
+Write-Host "Backend Python: $venvPython" -ForegroundColor Green
+Write-Host "App data directory: $dataDir" -ForegroundColor Green
+Write-Host "Start the backend with: npm run backend:local" -ForegroundColor Green
+Write-Host "Then start the desktop app with: npm run dev" -ForegroundColor Green

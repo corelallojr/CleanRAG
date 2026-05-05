@@ -37,8 +37,11 @@ export function SetupChecklist({
           </button>
         </div>
       </div>
+      {runtimeConfig.backendMode === "python" ? (
+        <div className="notice notice--ok">Backend runtime: Local Python environment</div>
+      ) : null}
       {runtimeConfig.backendMode === "docker" ? (
-        <div className="notice notice--ok">Backend runtime: Docker container</div>
+        <div className="notice notice--ok">Backend runtime: Docker container fallback</div>
       ) : null}
       {!runtimeConfig.hasPython && !runtimeConfig.hasDocker ? (
         <div className="notice notice--warning">

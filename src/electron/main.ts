@@ -17,6 +17,10 @@ function getBackendEntry(): string {
   return path.join(getContentRoot(), "backend");
 }
 
+function getBundledVenvPythonPath(): string {
+  return path.join(getBackendEntry(), ".venv", "Scripts", "python.exe");
+}
+
 function getComposeFilePath(): string {
   return path.join(getContentRoot(), "backend", "compose.local.yml");
 }
@@ -56,6 +60,11 @@ function commandExists(command: string, args: string[] = ["--version"]): boolean
 }
 
 function resolvePythonCommand(): string | null {
+  const bundledVenvPython = getBundledVenvPythonPath();
+  if (fs.existsSync(bundledVenvPython)) {
+    return bundledVenvPython;
+  }
+
   const candidates = ["python", "py"];
   for (const candidate of candidates) {
     if (commandExists(candidate)) {
@@ -165,12 +174,12 @@ function startDockerBackend(): boolean {
 async function startBackend(): Promise<void> {
   ensureAppDirectories();
 
-  if (startDockerBackend()) {
+  if (startPythonBackend()) {
     await waitForBackend();
     return;
   }
 
-  if (startPythonBackend()) {
+  if (startDockerBackend()) {
     await waitForBackend();
     return;
   }
