@@ -18,7 +18,7 @@ If you do not already have this project on your computer, do this first.
 Open **PowerShell** and paste this exact command:
 
 ```powershell
-git clone https://github.com/corelallojr/CleanRAG.git; cd CleanRAG
+git clone https://github.com/coreylallojr/CleanRAG.git; cd CleanRAG
 ```
 
 What this does:
@@ -58,7 +58,7 @@ If you already used the `Start Here` command above, you already did this step.
 If not, open PowerShell and run:
 
 ```powershell
-git clone https://github.com/corelallojr/CleanRAG.git
+git clone https://github.com/coreylallojr/CleanRAG.git
 cd CleanRAG
 ```
 
@@ -138,7 +138,7 @@ If the app responds, the basic chat path is working.
 If you want one exact test flow from a fresh clone, use this:
 
 ```powershell
-git clone https://github.com/corelallojr/CleanRAG.git
+git clone https://github.com/coreylallojr/CleanRAG.git
 cd CleanRAG
 npm install
 powershell -ExecutionPolicy Bypass -File .\scripts\install-local.ps1

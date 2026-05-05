@@ -4,7 +4,7 @@
   "private": true,
   "description": "Windows-first local desktop RAG app for non-technical users.",
   "main": "dist-electron/electron/main.js",
-  "author": "corelallojr",
+  "author": "coreylallojr",
   "license": "MIT",
   "scripts": {
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron:build\" \"npm:dev:electron\"",
